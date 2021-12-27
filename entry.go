@@ -5,7 +5,7 @@ package orderbookgo
 type Entry struct {
 	Price float64
 	Quantity float64
-	seq interface{}
+	Seq interface{}
 }
 
 type EntryStats struct {

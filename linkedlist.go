@@ -58,7 +58,7 @@ func (orderbook *OrderbookList) InsertBuySide(price float64, quantity float64, s
 		if tmpnode.Price == price {
 			//update the corresponding node	
 			tmpnode.Quantity = quantity
-			tmpnode.seq = seq
+			tmpnode.Seq = seq
 			return
 		}
 
@@ -134,7 +134,7 @@ func (orderbook *OrderbookList) InsertAskSide(price float64, quantity float64, s
 		if tmpnode.Price == price {
 			//update the corresponding node	
 			tmpnode.Quantity = quantity
-			tmpnode.seq = seq
+			tmpnode.Seq = seq
 			return
 		}
 

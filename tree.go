@@ -91,7 +91,7 @@ type orderbookTentry struct {
 func ( entry *orderbookTentry) insert(newEntry *orderbookTentry)  {
 	if entry.Price == newEntry.Price {
 		entry.Quantity = newEntry.Quantity
-		entry.seq = newEntry.seq
+		entry.Seq = newEntry.Seq
 	} 
 
 
