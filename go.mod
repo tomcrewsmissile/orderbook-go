@@ -1,3 +1,3 @@
-module github.com/tomcrewsmissile/orderbookgo
+module github.com/tomcrewsmissile/orderbook-go
 
 go 1.16
