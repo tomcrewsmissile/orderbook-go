@@ -3,10 +3,62 @@ package orderbookgo
 import "sync"
 
 
+//currently this function assumes sorted data in ascending order
+func BuildTree(entries []Entry) *OrderbookTree {
+	if entries == nil {
+		return &OrderbookTree{
+			mutex: &sync.RWMutex{},
+		}
+	}
 
-func BuildTree([]orderbookTentry) {
+	node := buildTrees(entries)
+
+	return &OrderbookTree{
+		mutex: &sync.RWMutex{},
+		headNode: node,
+	}
 
 }
+
+func buildTrees(entries []Entry) *orderbookTentry {
+
+	mid := len(entries) / 2 //gets the middle index of the slice
+
+	//base cases
+	if len(entries) < 3 {
+		
+		
+		switch len(entries) {
+
+		case 0: 
+			//idk how this could happen
+		case 1:
+			return &orderbookTentry{
+				Entry: entries[0],
+			}
+		case 2:
+			child := &orderbookTentry{
+				Entry: entries[0],
+
+			}
+			return &orderbookTentry{
+				Entry: entries[1],
+				leftChild: child,
+			}
+		}	
+	}
+	
+
+	return &orderbookTentry {
+		Entry: entries[mid], 
+		leftChild: buildTrees(entries[:mid]),
+		rightChild: buildTrees(entries[mid + 1:]),
+	}
+
+
+}
+
+
 
 
 type OrderbookTree struct {
@@ -30,17 +82,15 @@ func (ob *OrderbookTree) Insert(entry orderbookTentry) {
 
 
 type orderbookTentry struct {
-	price float64
-	quantity float64	
-	seq interface{}	
+	Entry	
 	leftChild *orderbookTentry //less than
 	rightChild *orderbookTentry //greater than 
 	 
 }
 
 func ( entry *orderbookTentry) insert(newEntry *orderbookTentry)  {
-	if entry.price == newEntry.price {
-		entry.quantity = newEntry.quantity
+	if entry.Price == newEntry.Price {
+		entry.Quantity = newEntry.Quantity
 		entry.seq = newEntry.seq
 	} 
 
