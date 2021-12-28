@@ -26,6 +26,8 @@ type OrderbookList struct {
 	
 	buysidemutex  *sync.RWMutex
 	sellsidemutex *sync.RWMutex
+
+	lastSeq interface{}
 }
 
 func (orderbook *OrderbookList) InsertBuySide(price float64, quantity float64, seq interface{}) {
@@ -34,6 +36,8 @@ func (orderbook *OrderbookList) InsertBuySide(price float64, quantity float64, s
 	defer orderbook.buysidemutex.Unlock()
 	
 	newEntry := newEntry(price, quantity, seq)
+
+	orderbook.lastSeq = seq
 
 	//base case
 	if orderbook.buySideHeadNode == nil {
@@ -106,7 +110,9 @@ func (orderbook *OrderbookList) InsertAskSide(price float64, quantity float64, s
 
 	orderbook.sellsidemutex.Lock()
 	defer orderbook.sellsidemutex.Unlock()
-	
+
+	orderbook.lastSeq = seq	
+
 	newEntry := newEntry(price, quantity, seq)
 
 
@@ -238,3 +244,8 @@ func (orderbook *OrderbookList) GetBuyLiquidity(price float64) float64 {
 }
 
 
+func (ob *OrderbookList) GetLastSequence() interface{} {
+
+
+	return ob.lastSeq
+}
