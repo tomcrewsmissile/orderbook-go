@@ -171,7 +171,7 @@ func (ob *OrderbookList) GetSellside() []Entry {
 		return nil
 	}
 
-	entries := make([]Entry, ob.buysidedepth)
+	entries := make([]Entry, ob.sellsidedepth)
 
 	for i, node := 0, ob.sellSideHeadNode; i < ob.sellsidedepth; i++ {
 		entries[i] = node.Entry	
