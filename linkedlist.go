@@ -67,8 +67,9 @@ func (orderbook *OrderbookList) InsertBuySide(price float64, quantity float64, s
 				if tmpnode.childNode != nil {
 					tmpnode.childNode.parentNode = tmpnode.parentNode
 				}
-					tmpnode.parentNode.childNode = tmpnode.childNode
-		
+				if tmpnode.parentNode != nil {		
+				tmpnode.parentNode.childNode = tmpnode.childNode
+				}
 				return
 			}	
 			
@@ -156,7 +157,9 @@ func (orderbook *OrderbookList) InsertAskSide(price float64, quantity float64, s
 				if tmpnode.childNode != nil {
 					tmpnode.childNode.parentNode = tmpnode.parentNode
 				}
-				tmpnode.parentNode.childNode = tmpnode.childNode
+				if tmpnode.parentNode != nil {	
+					tmpnode.parentNode.childNode = tmpnode.childNode
+				}
 				return
 			}  	
 			
