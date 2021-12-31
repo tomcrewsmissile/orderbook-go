@@ -2,7 +2,6 @@ package orderbookgo
 
 import (
 	"sync"
-	"log"
 )
 
 //double linked list implementation
@@ -64,9 +63,14 @@ func (orderbook *OrderbookList) InsertBuySide(price float64, quantity float64, s
 			
 			//in this case the order needs to be removed	
 			if quantity == 0 {
-				log.Print(tmpnode.parentNode)
-				tmpnode.parentNode.childNode = tmpnode.childNode
-				tmpnode.childNode.parentNode = tmpnode.parentNode
+			
+				if tmpnode.childNode != nil {
+					tmpnode.parentNode.childNode = tmpnode.childNode
+				}
+				if tmpnode.parentNode != nil {
+					tmpnode.childNode.parentNode = tmpnode.parentNode
+				}				
+		
 				return
 			}	
 			
@@ -151,10 +155,13 @@ func (orderbook *OrderbookList) InsertAskSide(price float64, quantity float64, s
 		if tmpnode.Price == price {
 			
 			if quantity == 0 { //in this case, the order needs to be removed
-				log.Print(tmpnode.parentNode)	
 				
-				tmpnode.parentNode.childNode = tmpnode.childNode
-				tmpnode.childNode.parentNode = tmpnode.parentNode
+				if tmpnode.childNode != nil {
+					tmpnode.parentNode.childNode = tmpnode.childNode
+				}
+				if tmpnode.parentNode != nil {
+					tmpnode.childNode.parentNode = tmpnode.parentNode
+				}	
 				return
 			}  	
 			
