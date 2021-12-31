@@ -60,6 +60,14 @@ func (orderbook *OrderbookList) InsertBuySide(price float64, quantity float64, s
 
 		//check to see if price update
 		if tmpnode.Price == price {
+			
+			//in this case the order needs to be removed	
+			if quantity == 0 {
+				tmpnode.parentNode.childNode = tmpnode.childNode
+				tmpnode.childNode.parentNode = tmpnode.parentNode
+			}	
+			
+			
 			//update the corresponding node	
 			tmpnode.Quantity = quantity
 			tmpnode.Seq = seq
@@ -138,6 +146,12 @@ func (orderbook *OrderbookList) InsertAskSide(price float64, quantity float64, s
 
 		//check to see if price update
 		if tmpnode.Price == price {
+			
+			if quantity == 0 { //in this case, the order needs to be removed
+				tmpnode.parentNode.childNode = tmpnode.childNode
+				tmpnode.childNode.parentNode = tmpnode.parentNode
+			}	
+			
 			//update the corresponding node	
 			tmpnode.Quantity = quantity
 			tmpnode.Seq = seq

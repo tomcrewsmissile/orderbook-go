@@ -17,6 +17,9 @@ func getTestLLOrderbook() *OrderbookList {
 	list.InsertBuySide(9, 3, nil)
 	list.InsertBuySide(14, 4, nil)
 	list.InsertBuySide(11, 3, nil)	
+	list.InsertBuySide(11, 0, nil)	
+	list.InsertBuySide(12, 0 , nil)	
+	
 	return list
 
 } 
