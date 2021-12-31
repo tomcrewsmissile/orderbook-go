@@ -2,6 +2,7 @@ package orderbookgo
 
 import (
 	"sync"
+	"log"
 )
 
 //double linked list implementation
@@ -40,64 +41,63 @@ func (orderbook *OrderbookList) InsertBuySide(price float64, quantity float64, s
 	orderbook.lastSeq = seq
 
 	//base case
-	if orderbook.buySideHeadNode == nil {
+	if orderbook.buySideHeadNode == nil && quantity > 0{
 		orderbook.buySideHeadNode = newEntry
 		orderbook.buysidedepth++
 		return
 	}
 
 	//second base case. Entry is the new best bid to buy
-	if price > orderbook.buySideHeadNode.Price {
+	if price > orderbook.buySideHeadNode.Price && quantity > 0 {
 		newEntry.childNode = orderbook.buySideHeadNode
-		orderbook.buySideHeadNode.parentNode = newEntry	
 		orderbook.buySideHeadNode = newEntry
 		orderbook.buysidedepth++	
 		return
 	}
 
-	tmpnode := orderbook.buySideHeadNode	
-	for ; tmpnode.childNode != nil && tmpnode.Price > price; tmpnode = tmpnode.childNode {}
-
-		//check to see if price update
-		if tmpnode.Price == price {
-			
-			//in this case the order needs to be removed	
-			if quantity == 0 {
-			
-				if tmpnode.childNode != nil {
-					tmpnode.childNode.parentNode = tmpnode.parentNode
+	//in this case the order needs to be removed
+	if quantity == 0 {
+		//find the order
+		var tmpnodeParent *OrderbookLEntry 	
+		tmpnodeParent = nil	
+		tmpnode := orderbook.buySideHeadNode
+		for ;tmpnode != nil ; tmpnodeParent, tmpnode = tmpnode, tmpnode.childNode {
+			if tmpnode.Price == price {
+				if tmpnodeParent != nil {
+					tmpnodeParent.childNode = tmpnode.childNode
+				} else {
+					orderbook.buySideHeadNode = tmpnode.childNode //this is a base case where the headnode is being removed
 				}
-				if tmpnode.parentNode != nil {		
-				tmpnode.parentNode.childNode = tmpnode.childNode
-				}
+				orderbook.buysidedepth--
 				return
-			}	
-			
-			
-			//update the corresponding node	
+			}
+		} 
+		return
+	}
+
+	var tmpnodeParent *OrderbookLEntry
+	tmpnode := orderbook.buySideHeadNode
+	for ; tmpnode != nil && tmpnode.Price >= price; tmpnodeParent, tmpnode = tmpnode, tmpnode.childNode  {
+		
+		if tmpnode.Price == price {
+			log.Print("price is the same")	
 			tmpnode.Quantity = quantity
 			tmpnode.Seq = seq
 			return
 		}
+	}
 
-
-	//check to see if the node needs to be inserted at the end
-	if tmpnode.childNode == nil && tmpnode.Price > price {
-		tmpnode.childNode = newEntry
-		newEntry.parentNode = tmpnode
-		orderbook.buysidedepth++	
+	if tmpnode == nil {
+		tmpnodeParent.childNode = newEntry
+		orderbook.buysidedepth++
 		return
 	}
 
-	//insertion into the list
-	newEntry.parentNode = tmpnode.parentNode	
+	tmpnodeParent.childNode = newEntry
 	newEntry.childNode = tmpnode	
-
-	//reassign pointers
-	newEntry.childNode.parentNode = newEntry
-	newEntry.parentNode.childNode = newEntry
-
 	orderbook.buysidedepth++	
+	return
+
 
 }
 
@@ -139,54 +139,56 @@ func (orderbook *OrderbookList) InsertAskSide(price float64, quantity float64, s
 	}
 
 	//second base case. Entry is the new best bid to buy
-	if price < orderbook.sellSideHeadNode.Price {
+	if price < orderbook.sellSideHeadNode.Price && quantity > 0{
 		newEntry.childNode = orderbook.sellSideHeadNode
-		orderbook.sellSideHeadNode.parentNode = newEntry	
 		orderbook.sellSideHeadNode = newEntry
 		orderbook.sellsidedepth++	
 		return 
 	}
 
-	tmpnode := orderbook.sellSideHeadNode	
-	for ; tmpnode.childNode != nil && tmpnode.Price < price; tmpnode = tmpnode.childNode {}
-
-		//check to see if price update
-		if tmpnode.Price == price {
-			
-			if quantity == 0 { //in this case, the order needs to be removed
-				if tmpnode.childNode != nil {
-					tmpnode.childNode.parentNode = tmpnode.parentNode
+	//in this case the order needs to be removed
+	if quantity == 0 {
+		//find the order
+		var tmpnodeParent *OrderbookLEntry 	
+		tmpnodeParent = nil	
+		tmpnode := orderbook.sellSideHeadNode
+		for ;tmpnode != nil ; tmpnodeParent, tmpnode = tmpnode, tmpnode.childNode {
+			if tmpnode.Price == price {
+				if tmpnodeParent != nil {
+					tmpnodeParent.childNode = tmpnode.childNode
+				} else {
+					orderbook.sellSideHeadNode = tmpnode.childNode //this is a base case where the headnode is being removed
 				}
-				if tmpnode.parentNode != nil {	
-					tmpnode.parentNode.childNode = tmpnode.childNode
-				}
+				orderbook.sellsidedepth--
 				return
-			}  	
-			
-			//update the corresponding node	
+			}
+		} 
+		return
+	}
+
+	var tmpnodeParent *OrderbookLEntry
+	tmpnode := orderbook.sellSideHeadNode
+	for ; tmpnode != nil && tmpnode.Price <= price; tmpnodeParent, tmpnode = tmpnode, tmpnode.childNode  {
+		
+		if tmpnode.Price == price {
+			log.Print("price is the same")	
 			tmpnode.Quantity = quantity
 			tmpnode.Seq = seq
 			return
 		}
+	}
 
-
-	//check to see if the node needs to be inserted at the end
-	if tmpnode.childNode == nil && tmpnode.Price < price {
-		tmpnode.childNode = newEntry
-		newEntry.parentNode = tmpnode
-		orderbook.sellsidedepth++	
+	if tmpnode == nil {
+		tmpnodeParent.childNode = newEntry
+		orderbook.sellsidedepth++
 		return
 	}
 
-	//insertion into the list
-	newEntry.parentNode = tmpnode.parentNode	
+	tmpnodeParent.childNode = newEntry
 	newEntry.childNode = tmpnode	
-
-	//reassign pointers
-	newEntry.childNode.parentNode = newEntry
-	newEntry.parentNode.childNode = newEntry
-
 	orderbook.sellsidedepth++	
+	return
+
 
 }
 
@@ -214,14 +216,12 @@ func newEntry(price float64, quantity float64, seq interface{}) *OrderbookLEntry
 	return &OrderbookLEntry{
 		Entry{price, quantity, seq},
 		nil,
-		nil,
 	}
 
 }
 
 type OrderbookLEntry struct {
 	Entry
-	parentNode *OrderbookLEntry
 	childNode  *OrderbookLEntry
 }
 
